@@ -61,6 +61,7 @@ def training():
             estimator.fit(train_x, y.iloc[train_idx])
             predicted = estimator.predict(test_x)
             accuracy = accuracy_score(y.iloc[test_idx], predicted)
+            st.session_state["local_sklearn_metrics"] = {"Algorithm": algorithm, "Accuracy": float(accuracy)}
             st.metric("Holdout accuracy", f"{accuracy:.1%}")
             st.dataframe(pd.DataFrame(classification_report(y.iloc[test_idx], predicted,
                          labels=[0,1], target_names=["Fake", "Genuine"], output_dict=True, zero_division=0)).T,

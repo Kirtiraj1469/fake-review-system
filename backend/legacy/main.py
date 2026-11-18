@@ -1,5 +1,8 @@
 import streamlit as st
 import os
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 import logging
 import warnings
 
@@ -14,6 +17,7 @@ from home_page import home_page
 from training import training
 from testing import test_model
 from mapreduce_page import mapreduce_page
+from bigdata_dashboard import bigdata_dashboard
 
 # Page configuration
 st.set_page_config(
@@ -48,7 +52,7 @@ st.sidebar.markdown("---")
 # Add a navbar with buttons
 nav = st.sidebar.radio(
     "Navigate",
-    ["🛍️ Scrape Reviews", "🎓 Training", "🧪 Testing", "🗺️ MapReduce"],
+    ["🛍️ Scrape Reviews", "🎓 Training", "🧪 Testing", "🗺️ MapReduce", "🧱 Hadoop / Spark"],
     label_visibility='visible'
 )
 
@@ -74,5 +78,7 @@ elif nav == "🧪 Testing":
     test_model()
 elif nav == "🗺️ MapReduce":
     mapreduce_page()
+elif nav == "🧱 Hadoop / Spark":
+    bigdata_dashboard()
 
 

@@ -1,51 +1,51 @@
-# Verity · Fake Review Intelligence
+# Fake Review Detection · Big Data Essentials
 
-A review analysis platform with a React dashboard, FastAPI service, machine-learning training and inference, Flipkart review collection, and local/Hadoop Streaming MapReduce aggregation.
+The existing Streamlit application remains available at the repository root entry point `main.py`. The optional Docker stack adds real HDFS, YARN MapReduce, and Spark MLlib services. The React dashboard from the earlier revision remains under `frontend/` and runs independently.
 
-## Project layout
+## Repository layout
 
-- `frontend/` React + Vite dashboard
-- `backend/app/api.py` FastAPI routes for scraping, training, predictions, and MapReduce
-- `backend/app/ml_pipeline.py` shared preprocessing and model feature pipeline
-- `backend/app/mapreduce_jobs.py` Hadoop Streaming mapper and reducer
-- `backend/data/` runtime datasets and saved model bundles
+- `main.py` and `backend/legacy/` — existing Streamlit UI, scraping, training, and testing pages, plus Big Data dashboard
+- `backend/app/` — shared preprocessing, scraper support, FastAPI routes, and distributed job code
+- `backend/app/bigdata/jobs/` — schema-aware CSV-to-JSONL conversion, Hadoop Streaming mapper/reducer, and Spark MLlib trainer
+- `docker-compose.yml` and `docker/hadoop/` — HDFS, YARN, and Spark containers with pinned Hadoop/Spark versions
+- `scripts/bigdata.sh` — idempotent start, upload, MapReduce, Spark, status, and shutdown commands
+- `backend/data/` — runtime data and model directories; local datasets and outputs are git-ignored
+- `frontend/` — optional React UI
 
-## Start locally on macOS or Linux
+## Start the existing Streamlit system
 
-Use two terminals from the repository root.
-
-Terminal 1 starts the API:
+From the repository root:
 
 ```bash
-cd backend
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m uvicorn app.api:app --host 0.0.0.0 --port 5001
+python -m pip install -r backend/requirements.txt
+streamlit run main.py
 ```
 
-Terminal 2 starts the dashboard:
+## Start real Hadoop, HDFS, YARN, and Spark in Docker
+
+Docker Desktop must be running. See [MAC_SETUP.md](MAC_SETUP.md) for first-run, verification, dataset upload, and troubleshooting details.
 
 ```bash
-cd frontend
-npm install
-npm run dev -- --host 0.0.0.0 --port 5173
+./scripts/bigdata.sh start
+./scripts/bigdata.sh upload /absolute/path/to/reviews.csv
+./scripts/bigdata.sh mapreduce
+./scripts/bigdata.sh spark
 ```
 
-Open the Vite URL, usually `http://localhost:5173`. The API documentation is at `http://localhost:5001/docs`.
+The uploader handles CSV quotes and missing values, requires review text and labels, then converts valid rows to JSON Lines. Hadoop Streaming counts category, rating, and label values in an actual YARN MapReduce job. Spark MLlib reads the resulting JSON Lines from HDFS, trains Logistic Regression, evaluates the held-out set, and writes a model and metrics back to HDFS.
 
-## Workflow
+The Streamlit navigation includes **Hadoop / Spark**, which reads live HDFS and YARN endpoints and actual output files. It does not fabricate results. The original scikit-learn pages remain independent.
 
-1. Open **Models** and upload a labeled CSV containing `text_` and `label`. Labels `CG`/`0` mean likely fake. `OR`/`1` mean genuine. Select Logistic Regression, Linear SVM, Multinomial Naive Bayes, or Random Forest.
-2. Open **Scrape reviews** to collect Flipkart feedback, or open **Review analysis** and upload a review CSV.
-3. Open **MapReduce** to run partitioned local mapper/reducer aggregation. The Hadoop Streaming command is visible in the page and in `backend/README.md`.
+Pinned container versions are Hadoop 3.3.6 and Spark 3.5.3, running on a multi-architecture Eclipse Temurin 11 image. The setup is a single-node learning cluster with HDFS replication one. Hadoop’s optional native libraries may use Java fallbacks on ARM64.
 
-Training saves model bundles under `backend/data/models/`. Review predictions are saved under `backend/data/predictions/`. These runtime files are excluded from Git.
+## Key URLs while the stack is running
 
-## Hadoop Streaming
+- HDFS NameNode: `http://localhost:9870`
+- YARN ResourceManager: `http://localhost:8088`
+- YARN NodeManager: `http://localhost:8042`
 
-The local mapper/reducer do not require a Hadoop cluster. To run on Hadoop, configure Hadoop and HDFS, convert your review CSV to JSON Lines, then follow the command in `backend/README.md`. Hadoop worker nodes need Python and the `mapreduce_jobs.py` script.
+## Status and limitations
 
-## Notes
-
-Flipkart may rate-limit or change its page markup, so scraping depends on current access and page structure. Existing legacy Streamlit files are retained in `backend/legacy/` for reference; the active interface is the React dashboard.
+The course `reviews.csv` was not present in the connected GitHub tree during implementation, so its shape and class balance have not been verified. It is not committed to the repository. See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for exactly what was checked and what still requires a run on the Mac Docker Desktop ARM64 engine.

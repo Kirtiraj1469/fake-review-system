@@ -13,3 +13,13 @@ backend/data/generated-reviews/*
 !backend/data/predictions/.gitkeep
 !backend/data/training/.gitkeep
 !backend/data/generated-reviews/.gitkeep
+
+# Local training data, generated files, and model artifacts
+/models/*
+/Generated reviews/*
+/Predicted Data/*
+/Predicted Data/Training/*
+!models/.gitkeep
+!Generated reviews/.gitkeep
+!Predicted Data/.gitkeep
+!Predicted Data/Training/.gitkeep

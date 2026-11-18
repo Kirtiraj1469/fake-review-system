@@ -1,0 +1,15 @@
+.venv/
+node_modules/
+dist/
+__pycache__/
+*.py[cod]
+.env
+.DS_Store
+backend/data/models/*
+backend/data/predictions/*
+backend/data/training/*
+backend/data/generated-reviews/*
+!backend/data/models/.gitkeep
+!backend/data/predictions/.gitkeep
+!backend/data/training/.gitkeep
+!backend/data/generated-reviews/.gitkeep

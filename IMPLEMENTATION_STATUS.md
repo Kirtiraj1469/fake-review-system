@@ -27,7 +27,7 @@
 - `docker compose config --quiet` — passed.
 - Parsed all four Hadoop XML configuration files with Python's XML parser — passed.
 - Verified the pinned Temurin 11 base image has a `linux/arm64/v8` manifest. The Codex Docker daemon itself is separate and reports Linux/amd64.
-- Attempted a Docker image build in the separate Codex Linux/amd64 daemon. The build was still downloading the large Hadoop archive from Apache after several minutes; it was stopped before the image completed. No Hadoop services or YARN jobs were started here.
+- Attempted a Docker image build in the separate Codex Linux/amd64 daemon. The build remained on the large Hadoop archive download from Apache after several minutes, so image and cluster verification did not complete. No Hadoop services or YARN jobs were started here.
 - The user's Mac Docker Desktop ARM64 execution has not been observed and must not be represented as tested.
 - The course dataset is absent, so data-specific schema validation, class balance, accuracy, precision, recall, F1, YARN application IDs, and model outputs remain unknown until the user runs with their actual CSV.
 
